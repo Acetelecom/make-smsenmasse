@@ -1,0 +1,18 @@
+{
+  "name": "apiKey",
+  "label": "API Key",
+  "type": "basic",
+  "fields": [
+    {
+      "name": "apiKey",
+      "label": "API Key",
+      "type": "text",
+      "required": true,
+      "help": "Available in your account settings: https://www.smsenmasse.fr/v1/account-settings — click \"Authentication\" and choose apiKeyAuth."
+    }
+  ],
+  "validation": {
+    "url": "{{baseUrl}}/sms/balance",
+    "method": "GET"
+  }
+}

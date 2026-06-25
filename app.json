@@ -1,0 +1,12 @@
+{
+  "name": "smsenmasse",
+  "label": "SMS en Masse",
+  "version": "1.0.4",
+  "description": "Send SMS campaigns and manage your SMS en Masse account directly from Make.",
+  "color": "#0055FF",
+  "language": "en",
+  "countries": ["FR", "BE", "CH", "LU"],
+  "categories": ["marketing", "communication"],
+  "homepage": "https://www.smsenmasse.fr",
+  "logo": "https://www.smsenmasse.fr/favicon.ico"
+}
