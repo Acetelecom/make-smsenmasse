@@ -1,0 +1,3 @@
+[
+  { "name": "balance", "label": "SMS Credits Available", "type": "number" }
+]

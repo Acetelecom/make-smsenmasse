@@ -1,0 +1,5 @@
+{
+  "typeId": 4,
+  "label": "Get Balance",
+  "description": "Retrieves the number of SMS credits available on your SMS en Masse account."
+}

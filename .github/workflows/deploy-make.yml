@@ -1,0 +1,74 @@
+# Deploys the SMS en Masse Make integration to the Make platform.
+#
+# ─── TRIGGERS ──────────────────────────────────────────────────────────────────
+#
+# - push to main → automatic deploy (updates all sections)
+# - workflow_dispatch → manual deploy, with optional --init flag
+#
+# ─── ONE-TIME SETUP ────────────────────────────────────────────────────────────
+#
+# Add the following secrets in the repo Settings → Secrets → Actions:
+#
+#   MAKE_API_KEY    → Your Make API key (make.com → Profile → API access)
+#   MAKE_ZONE       → Your Make zone, e.g. eu1.make.com
+#   MAKE_APP_NAME   → Internal app name on Make (e.g. smsenmasse)
+#
+# First deployment (bootstrap):
+#   1. Trigger this workflow manually with mode = "init"
+#   2. This creates the app, connection, webhook and modules on Make
+#   3. All subsequent pushes to main will update sections automatically
+#
+# ─── APP REVIEW ────────────────────────────────────────────────────────────────
+#
+# After deployment, open the Make developer portal, click "Publish",
+# then "Request review" to submit the app for Make marketplace approval.
+
+name: Deploy to Make
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Deployment mode'
+        required: false
+        default: 'update'
+        type: choice
+        options:
+          - update
+          - init
+
+jobs:
+  deploy:
+    name: Deploy to Make platform
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy (init — create app + all resources)
+        if: github.event.inputs.mode == 'init'
+        run: bash deploy.sh --init
+        env:
+          MAKE_API_KEY: ${{ secrets.MAKE_API_KEY }}
+          MAKE_ZONE: ${{ secrets.MAKE_ZONE }}
+          MAKE_APP_NAME: ${{ secrets.MAKE_APP_NAME }}
+
+      - name: Deploy (update — push all sections)
+        if: github.event.inputs.mode != 'init'
+        run: bash deploy.sh
+        env:
+          MAKE_API_KEY: ${{ secrets.MAKE_API_KEY }}
+          MAKE_ZONE: ${{ secrets.MAKE_ZONE }}
+          MAKE_APP_NAME: ${{ secrets.MAKE_APP_NAME }}

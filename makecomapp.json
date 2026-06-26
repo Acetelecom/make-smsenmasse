@@ -1,0 +1,71 @@
+{
+  "fileVersion": 1,
+  "generalCodeFiles": [],
+  "origins": [
+    {
+      "label": "Production",
+      "baseUrl": "https://eu1.make.com/api",
+      "appId": "smsenmasse",
+      "appVersion": 1,
+      "apikeyFile": ".secrets/apikey"
+    }
+  ],
+  "components": {
+    "connection": [
+      {
+        "name": "apiKey",
+        "label": "API Key",
+        "codeFiles": {
+          "api": "connections/apiKey/api.json",
+          "parameters": "connections/apiKey/parameters.json"
+        }
+      }
+    ],
+    "webhook": [
+      {
+        "name": "dlrReceiver",
+        "label": "DLR Receiver",
+        "codeFiles": {}
+      }
+    ],
+    "module": [
+      {
+        "name": "sendCampaignSms",
+        "label": "Send SMS Campaign",
+        "moduleType": "action",
+        "codeFiles": {
+          "api": "modules/sendCampaignSms/api.json",
+          "parameters": "modules/sendCampaignSms/parameters.json",
+          "interface": "modules/sendCampaignSms/interface.json"
+        }
+      },
+      {
+        "name": "getBalance",
+        "label": "Get Balance",
+        "moduleType": "action",
+        "codeFiles": {
+          "api": "modules/getBalance/api.json",
+          "interface": "modules/getBalance/interface.json"
+        }
+      },
+      {
+        "name": "listCampaigns",
+        "label": "List Campaigns",
+        "moduleType": "search",
+        "codeFiles": {
+          "api": "modules/listCampaigns/api.json",
+          "parameters": "modules/listCampaigns/parameters.json",
+          "interface": "modules/listCampaigns/interface.json"
+        }
+      },
+      {
+        "name": "campaignStatus",
+        "label": "SMS Campaign Status Updated",
+        "moduleType": "instant_trigger",
+        "codeFiles": {
+          "interface": "modules/campaignStatus/interface.json"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "typeId": 9,
+  "label": "List Campaigns",
+  "description": "Lists SMS campaigns on your SMS en Masse account with optional pagination."
+}

@@ -1,0 +1,21 @@
+{
+  "url": "/sms",
+  "method": "POST",
+  "body": {
+    "recipients": "{{parameters.recipients}}",
+    "message": "{{parameters.message}}",
+    "name": "{{if(parameters.name; parameters.name; omit)}}",
+    "sender": "{{if(parameters.sender; parameters.sender; omit)}}",
+    "sendAt": "{{if(parameters.sendAt; parameters.sendAt; omit)}}",
+    "country": "{{if(parameters.country; parameters.country; omit)}}",
+    "identifier": "{{if(parameters.identifier; parameters.identifier; omit)}}",
+    "webhookUrl": "{{if(parameters.webhookUrl; parameters.webhookUrl; omit)}}"
+  },
+  "response": {
+    "valid": "{{statusCode === 201 || statusCode === 200}}",
+    "output": "{{body}}",
+    "error": {
+      "message": "{{ifempty(body.message; 'Error ' + statusCode)}}"
+    }
+  }
+}

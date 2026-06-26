@@ -1,5 +1,19 @@
 # Changelog — SMS en Masse Make Integration
 
+## 1.1.0
+
+### Changed
+- Project restructured to section-based format compatible with the Make CLI (`@makehq/cli`) and VS Code Make Apps Editor extension
+- Each module split into `api.json`, `parameters.json`, `interface.json` sections
+- Connection split into `api.json` (validation) and `parameters.json` (input fields)
+- Added `makecomapp.json` — VS Code extension project file (origins, components registry)
+- Added `deploy.sh` — CLI-based deploy script for CI/CD
+- Added `package.json` — npm scripts (`deploy`, `deploy:init`)
+- Added `.github/workflows/deploy-make.yml` — GitHub Actions auto-deploy on push to main
+- Added `app.json` — full app metadata including `privacyPolicy` and `termsOfService` URLs
+- Added `webhooks/dlrReceiver/` — explicit webhook definition for the DLR instant trigger
+- Updated `README.md` — complete deployment and publication guide
+
 ## 1.0.4
 
 ### Fixed

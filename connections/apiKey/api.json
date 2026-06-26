@@ -1,0 +1,10 @@
+{
+  "url": "/sms/balance",
+  "method": "GET",
+  "response": {
+    "valid": "{{statusCode === 200}}",
+    "error": {
+      "message": "Invalid API key or connection failed."
+    }
+  }
+}

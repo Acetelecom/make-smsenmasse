@@ -1,0 +1,11 @@
+{
+  "url": "/sms/balance",
+  "method": "GET",
+  "response": {
+    "valid": "{{statusCode === 200}}",
+    "output": "{{body}}",
+    "error": {
+      "message": "{{ifempty(body.message; 'Error ' + statusCode)}}"
+    }
+  }
+}

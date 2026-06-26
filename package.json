@@ -1,0 +1,17 @@
+{
+  "name": "make-smsenmasse",
+  "version": "1.0.4",
+  "description": "Make (Integromat) integration for SMS en Masse — send SMS campaigns and manage your account.",
+  "scripts": {
+    "deploy": "bash deploy.sh",
+    "deploy:init": "bash deploy.sh --init",
+    "make": "make-cli"
+  },
+  "devDependencies": {
+    "@makehq/cli": "^1.4.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["make", "integromat", "sms", "smsenmasse", "campaign", "marketing sms", "envoi sms"]
+}

@@ -1,0 +1,4 @@
+[
+  { "name": "id",         "label": "Campaign ID",       "type": "number" },
+  { "name": "campagneId", "label": "Campaign ID (raw)", "type": "number" }
+]

@@ -1,0 +1,6 @@
+[
+  { "name": "event",      "label": "Event",         "type": "text"   },
+  { "name": "id_message", "label": "Message ID",    "type": "number" },
+  { "name": "statut",     "label": "Status (code)", "type": "number" },
+  { "name": "numero",     "label": "Phone Number",  "type": "text"   }
+]

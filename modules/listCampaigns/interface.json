@@ -1,0 +1,12 @@
+[
+  { "name": "id",         "label": "ID",               "type": "number" },
+  { "name": "name",       "label": "Campaign Name",     "type": "text"   },
+  { "name": "state",      "label": "State (code)",      "type": "number" },
+  { "name": "nbTel",      "label": "Recipients Count",  "type": "number" },
+  { "name": "nbSms",      "label": "SMS Count",         "type": "number" },
+  { "name": "sendAt",     "label": "Send Date",         "type": "date"   },
+  { "name": "finishedAt", "label": "Finished Date",     "type": "date"   },
+  { "name": "sender",     "label": "Sender Name",       "type": "text"   },
+  { "name": "message",    "label": "Message",           "type": "text"   },
+  { "name": "identifier", "label": "Custom Identifier", "type": "text"   }
+]

@@ -1,0 +1,59 @@
+[
+  {
+    "name": "recipients",
+    "label": "Recipients",
+    "type": "text",
+    "required": true,
+    "help": "Phone numbers in international format, separated by commas. Example: 33645332637,33667656608"
+  },
+  {
+    "name": "message",
+    "label": "Message",
+    "type": "text",
+    "required": true,
+    "help": "Max 160 characters per SMS. Longer messages will be split automatically."
+  },
+  {
+    "name": "name",
+    "label": "Campaign Name",
+    "type": "text",
+    "required": false,
+    "help": "Internal name to identify the campaign in your SMS en Masse account."
+  },
+  {
+    "name": "sender",
+    "label": "Sender Name",
+    "type": "text",
+    "required": false,
+    "help": "3 to 11 characters, must start with a letter. Leave empty to use the default short number."
+  },
+  {
+    "name": "sendAt",
+    "label": "Scheduled Send Date",
+    "type": "text",
+    "required": false,
+    "help": "Leave empty for immediate sending. Format: YYYY-MM-DD HH:mm:ss (example: 2026-01-15 14:30:00)"
+  },
+  {
+    "name": "country",
+    "label": "Country",
+    "type": "text",
+    "required": false,
+    "default": "FR",
+    "help": "ISO 3166-1 alpha-2 country code. Example: FR, BE, CH."
+  },
+  {
+    "name": "identifier",
+    "label": "Custom Identifier",
+    "type": "text",
+    "required": false,
+    "help": "Your internal reference to find this campaign in your systems."
+  },
+  {
+    "name": "webhookUrl",
+    "label": "Webhook URL (DLR)",
+    "type": "url",
+    "required": false,
+    "help": "URL to receive delivery status updates for each SMS. Use a Make webhook URL from an \"SMS Campaign Status Updated\" instant trigger module."
+  }
+]

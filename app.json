@@ -8,5 +8,7 @@
   "countries": ["FR", "BE", "CH", "LU"],
   "categories": ["marketing", "communication"],
   "homepage": "https://www.smsenmasse.fr",
-  "logo": "https://www.smsenmasse.fr/favicon.ico"
+  "logo": "https://www.smsenmasse.fr/favicon.ico",
+  "privacyPolicy": "https://www.smsenmasse.fr/politique-de-confidentialite",
+  "termsOfService": "https://www.smsenmasse.fr/conditions-generales-utilisation"
 }

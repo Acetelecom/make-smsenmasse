@@ -8,7 +8,7 @@ Send SMS campaigns, check your credit balance, and list your campaigns directly 
 
 ## Features
 
-- **Trigger**: SMS Campaign Status Updated — instant trigger (webhook) fired when a delivery status (DLR) is updated
+- **Trigger**: SMS Campaign Status Updated — instant webhook trigger fired when a delivery status (DLR) is updated
 - **Module**: Send SMS Campaign — create and send an SMS to one or more recipients instantly or on a schedule
 - **Module**: Get Balance — retrieve the number of SMS credits available on your account
 - **Module**: List Campaigns — list your SMS campaigns with pagination
@@ -24,65 +24,143 @@ Send SMS campaigns, check your credit balance, and list your campaigns directly 
 
 ## Authentication
 
-This integration uses **API Key** authentication. Your API key is sent via the `X-API-KEY` header on every request.
+API Key authentication. Your key is sent via the `X-API-KEY` header on every request.
 
-Find your API key in your SMS en Masse account under **Settings → API**.
-
----
-
-## Modules
-
-### Trigger — SMS Campaign Status Updated
-
-Instant webhook trigger fired when the delivery status of one of your SMS campaigns is updated (DLR).
-
-Returns: campaign ID, status code, status label, number of recipients, delivered count, failed count.
-
-### Module — Send SMS Campaign
-
-Creates and sends an SMS campaign to one or more recipients.
-
-| Field | Required | Description |
-|---|---|---|
-| Recipients | Yes | Phone numbers in international format, comma-separated (e.g. `33645332637,33667656608`) |
-| Message | Yes | SMS content. Max 160 characters per SMS; longer messages are split automatically. |
-| Campaign Name | No | Internal name to identify the campaign in your SMS en Masse account. |
-| Sender Name | No | 3 to 11 characters, must start with a letter. Leave empty to use the default short number. |
-| Scheduled Send Date | No | Format: `YYYY-MM-DD HH:mm:ss`. Leave empty for immediate sending. |
-| Country | No | ISO 3166-1 alpha-2 code (default: `FR`). |
-| Custom Identifier | No | Your internal reference for this campaign. |
-| Webhook URL (DLR) | No | URL to receive delivery status updates. Use a **SMS Campaign Status Updated** trigger webhook URL. |
-
-### Module — Get Balance
-
-Returns the number of SMS credits available on your account.
-
-### Module — List Campaigns
-
-Lists your SMS campaigns with pagination.
-
-| Field | Required | Description |
-|---|---|---|
-| Page | No | Page number (default: 1) |
-| Per Page | No | Results per page (default: 20, max: 100) |
+Find your API key in your SMS en Masse account under **Settings → Authentication → apiKeyAuth**.
 
 ---
 
-## App Structure
+## Development
+
+### Option A — VS Code (recommended for daily development)
+
+1. Install the [Make Apps Editor](https://marketplace.visualstudio.com/items?itemName=Integromat.apps-sdk) extension in VS Code
+2. Add your Make API key and zone in the extension settings
+3. Edit the `makecomapp.json` file → update the `baseUrl` to match your zone (`eu1.make.com`, `us1.make.com`…)
+4. Create the `.secrets/apikey` file with your Make API key (already gitignored)
+5. Right-click any component file → **Deploy to Make (beta)** to push changes
+
+### Option B — CLI (CI/CD and automation)
+
+```bash
+# Install dependencies
+npm install
+
+# Copy and fill environment variables
+cp .env.example .env
+# Edit .env: MAKE_API_KEY, MAKE_ZONE, MAKE_APP_NAME
+
+# First deployment — creates the app, connection, webhook and modules
+npm run deploy:init
+
+# Subsequent deployments — updates all code sections
+npm run deploy
+```
+
+---
+
+## GitHub Actions CI/CD
+
+The workflow `.github/workflows/deploy-make.yml` auto-deploys on every push to `main`.
+
+**One-time setup** (repo Settings → Secrets → Actions):
+
+| Secret | Value |
+|---|---|
+| `MAKE_API_KEY` | Your Make API key |
+| `MAKE_ZONE` | Your Make zone (e.g. `eu1.make.com`) |
+| `MAKE_APP_NAME` | Internal app name on Make (e.g. `smsenmasse`) |
+
+**Bootstrap** (first deployment):
+1. Go to **Actions → Deploy to Make → Run workflow**
+2. Select mode = `init`
+3. Run
+
+All subsequent pushes to `main` deploy automatically (mode = `update`).
+
+---
+
+## Publishing to the Make Marketplace
+
+The CLI and CI/CD handle **code deployment** only. The publication process requires additional manual steps:
+
+### Step 1 — Prepare test scenarios
+
+Before submitting for review, Make requires:
+- Every module used in **at least one test scenario** on your account
+- Test scenarios **run immediately** before requesting review
+- Execution logs **must not contain** personal or sensitive data
+
+### Step 2 — Publish the app
+
+Open your app in the Make developer portal → click **Publish**.
+This splits the app into a development version (only you) and a public version (pending review).
+
+### Step 3 — Request review
+
+A **Review** tab appears after publishing. Fill in:
+- API documentation link → [https://www.smsenmasse.fr/docs](https://www.smsenmasse.fr/docs)
+- Links to your test scenarios
+- App categories: `marketing`, `communication`
+- Contact / support information
+
+Click **Request review**. Make QA will review the app (typical duration: 4–6 weeks).
+
+### Step 4 — After approval
+
+Make publishes the app to all users. Future code changes pushed via CI/CD go to your **development version** only — you must request a new review to update the public version.
+
+---
+
+## Project structure
 
 ```
 make-smsenmasse/
-├── app.json              # App metadata (name, version, description)
-├── base.json             # Base URL and shared headers
+├── makecomapp.json           # VS Code extension project file (origins, components)
+├── app.json                  # App metadata (label, version, description)
+├── base.json                 # Base URL and shared headers
 ├── connections/
-│   └── apiKey.json       # API Key authentication connection
+│   └── apiKey/
+│       ├── api.json          # Validation request (GET /sms/balance)
+│       └── parameters.json   # API Key input field
 ├── modules/
-│   ├── campaignStatus.json   # Instant trigger (webhook DLR)
-│   ├── getBalance.json       # Get Balance module
-│   ├── listCampaigns.json    # List Campaigns module
-│   └── sendCampaignSms.json  # Send SMS Campaign module
-└── CHANGELOG.md
+│   ├── sendCampaignSms/
+│   │   ├── meta.json         # type-id, label, description
+│   │   ├── api.json          # POST /sms communication
+│   │   ├── parameters.json   # Input fields
+│   │   └── interface.json    # Output fields
+│   ├── getBalance/
+│   │   ├── meta.json
+│   │   ├── api.json
+│   │   └── interface.json
+│   ├── listCampaigns/
+│   │   ├── meta.json
+│   │   ├── api.json
+│   │   ├── parameters.json
+│   │   └── interface.json
+│   └── campaignStatus/
+│       ├── meta.json         # type-id=10 (instant trigger)
+│       └── interface.json    # Webhook payload fields
+├── webhooks/
+│   └── dlrReceiver/
+│       └── meta.json         # DLR webhook receiver definition
+├── deploy.sh                 # Deploy script (CLI-based)
+├── package.json              # @makehq/cli dependency + npm scripts
+└── .github/
+    └── workflows/
+        └── deploy-make.yml   # CI/CD: auto-deploy on push to main
 ```
+
+---
+
+## Module type IDs
+
+| Module | type-id | Make type |
+|---|---|---|
+| `sendCampaignSms` | 4 | Action |
+| `getBalance` | 4 | Action |
+| `listCampaigns` | 9 | Search |
+| `campaignStatus` | 10 | Instant Trigger |
 
 ---
 

@@ -1,0 +1,15 @@
+{
+  "url": "/sms",
+  "method": "GET",
+  "qs": {
+    "page":  "{{parameters.page}}",
+    "limit": "{{parameters.limit}}"
+  },
+  "response": {
+    "valid": "{{statusCode === 200}}",
+    "output": "{{body}}",
+    "error": {
+      "message": "{{ifempty(body.message; 'Error ' + statusCode)}}"
+    }
+  }
+}

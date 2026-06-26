@@ -1,0 +1,5 @@
+{
+  "typeId": 4,
+  "label": "Send SMS Campaign",
+  "description": "Creates and sends an SMS campaign to one or more recipients via SMS en Masse."
+}
