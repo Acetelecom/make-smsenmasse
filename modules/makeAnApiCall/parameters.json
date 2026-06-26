@@ -1,0 +1,51 @@
+[
+  {
+    "name": "url",
+    "label": "URL",
+    "type": "text",
+    "required": true,
+    "help": "Path relative to the base URL (https://api.smsenmasse.fr/api/v1). Example: /sms or /sms/balance"
+  },
+  {
+    "name": "method",
+    "label": "Method",
+    "type": "select",
+    "required": true,
+    "default": "GET",
+    "options": [
+      {"value": "GET",    "label": "GET"},
+      {"value": "POST",   "label": "POST"},
+      {"value": "PUT",    "label": "PUT"},
+      {"value": "PATCH",  "label": "PATCH"},
+      {"value": "DELETE", "label": "DELETE"}
+    ]
+  },
+  {
+    "name": "headers",
+    "label": "Headers",
+    "type": "array",
+    "spec": [
+      {"name": "key",   "label": "Key",   "type": "text"},
+      {"name": "value", "label": "Value", "type": "text"}
+    ],
+    "required": false,
+    "help": "Additional headers to send with the request."
+  },
+  {
+    "name": "qs",
+    "label": "Query String",
+    "type": "array",
+    "spec": [
+      {"name": "key",   "label": "Key",   "type": "text"},
+      {"name": "value", "label": "Value", "type": "text"}
+    ],
+    "required": false
+  },
+  {
+    "name": "body",
+    "label": "Body",
+    "type": "any",
+    "required": false,
+    "help": "Request body (for POST/PUT/PATCH). Will be sent as JSON."
+  }
+]

@@ -14,7 +14,7 @@
     "connection": [
       {
         "name": "apiKey",
-        "label": "API Key",
+        "label": "SMS en Masse",
         "codeFiles": {
           "api": "connections/apiKey/api.json",
           "parameters": "connections/apiKey/parameters.json"
@@ -25,7 +25,9 @@
       {
         "name": "dlrReceiver",
         "label": "DLR Receiver",
-        "codeFiles": {}
+        "codeFiles": {
+          "api": "webhooks/dlrReceiver/meta.json"
+        }
       }
     ],
     "module": [
@@ -36,7 +38,8 @@
         "codeFiles": {
           "api": "modules/sendCampaignSms/api.json",
           "parameters": "modules/sendCampaignSms/parameters.json",
-          "interface": "modules/sendCampaignSms/interface.json"
+          "interface": "modules/sendCampaignSms/interface.json",
+          "meta": "modules/sendCampaignSms/meta.json"
         }
       },
       {
@@ -45,7 +48,8 @@
         "moduleType": "action",
         "codeFiles": {
           "api": "modules/getBalance/api.json",
-          "interface": "modules/getBalance/interface.json"
+          "interface": "modules/getBalance/interface.json",
+          "meta": "modules/getBalance/meta.json"
         }
       },
       {
@@ -55,7 +59,8 @@
         "codeFiles": {
           "api": "modules/listCampaigns/api.json",
           "parameters": "modules/listCampaigns/parameters.json",
-          "interface": "modules/listCampaigns/interface.json"
+          "interface": "modules/listCampaigns/interface.json",
+          "meta": "modules/listCampaigns/meta.json"
         }
       },
       {
@@ -63,7 +68,19 @@
         "label": "SMS Campaign Status Updated",
         "moduleType": "instant_trigger",
         "codeFiles": {
-          "interface": "modules/campaignStatus/interface.json"
+          "interface": "modules/campaignStatus/interface.json",
+          "meta": "modules/campaignStatus/meta.json"
+        }
+      },
+      {
+        "name": "makeAnApiCall",
+        "label": "Make an API Call",
+        "moduleType": "action",
+        "codeFiles": {
+          "api": "modules/makeAnApiCall/api.json",
+          "parameters": "modules/makeAnApiCall/parameters.json",
+          "interface": "modules/makeAnApiCall/interface.json",
+          "meta": "modules/makeAnApiCall/meta.json"
         }
       }
     ]

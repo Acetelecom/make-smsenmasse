@@ -1,7 +1,0 @@
-{
-  "baseUrl": "https://api.smsenmasse.fr/api/v1",
-  "headers": {
-    "X-API-KEY": "{{connection.apiKey}}",
-    "Content-Type": "application/json"
-  }
-}

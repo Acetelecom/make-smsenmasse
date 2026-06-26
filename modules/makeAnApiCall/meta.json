@@ -1,0 +1,6 @@
+{
+  "typeId": 4,
+  "label": "Make an API Call",
+  "description": "Performs an arbitrary HTTP request to the SMS en Masse API. Use this module to call endpoints not covered by the other modules.",
+  "public": true
+}

@@ -1,4 +1,14 @@
 {
   "label": "DLR Receiver",
-  "type": "web"
+  "type": "web",
+  "detach": {
+    "url": "/sms/webhook/detach",
+    "method": "DELETE",
+    "body": {
+      "webhookUrl": "{{webhook.url}}"
+    },
+    "response": {
+      "valid": "{{statusCode >= 200 && statusCode < 300}}"
+    }
+  }
 }

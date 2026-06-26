@@ -9,7 +9,7 @@
     "valid": "{{statusCode === 200}}",
     "output": "{{body}}",
     "error": {
-      "message": "{{ifempty(body.message; 'Error ' + statusCode)}}"
+      "message": "[{{statusCode}}] {{ifempty(body.message; 'Error listing campaigns.')}}"
     }
   }
 }

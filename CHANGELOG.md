@@ -1,25 +1,25 @@
 # Changelog — SMS en Masse Make Integration
 
-## 1.1.0
+## 1.0.5
 
-### Changed
-- Project restructured to section-based format compatible with the Make CLI (`@makehq/cli`) and VS Code Make Apps Editor extension
-- Each module split into `api.json`, `parameters.json`, `interface.json` sections
-- Connection split into `api.json` (validation) and `parameters.json` (input fields)
-- Added `makecomapp.json` — VS Code extension project file (origins, components registry)
-- Added `deploy.sh` — CLI-based deploy script for CI/CD
-- Added `package.json` — npm scripts (`deploy`, `deploy:init`)
-- Added `.github/workflows/deploy-make.yml` — GitHub Actions auto-deploy on push to main
-- Added `app.json` — full app metadata including `privacyPolicy` and `termsOfService` URLs
-- Added `webhooks/dlrReceiver/` — explicit webhook definition for the DLR instant trigger
-- Updated `README.md` — complete deployment and publication guide
+### Make review compliance fixes
+- **Connection**: rename label to "SMS en Masse" (matches app name)
+- **Connection**: add `X-API-KEY` header explicitly in validation request (parameter was not used)
+- **Connection**: add `"editable": true` on `apiKey` parameter
+- **Connection**: add optional `accountLabel` parameter + metadata for connection identification
+- **Connection**: add log sanitization for `X-API-KEY` header
+- **Connection**: improve error format to `[statusCode] message`
+- **Modules**: set `"public": true` on all 4 modules (Get Balance, List Campaigns, Send SMS Campaign, SMS Campaign Status Updated)
+- **Modules**: standardize error format to `[{{statusCode}}] {{body.message}}` across all modules
+- **Universal module**: add "Make an API Call" module for custom endpoint access
+- **Webhook**: add `detach` RPC on DLR Receiver
 
 ## 1.0.4
 
 ### Fixed
-- `sendCampaignSms`: champs optionnels (`name`, `sender`, `sendAt`, `country`, `identifier`, `webhookUrl`) utilisent désormais `{{if(param; param; omit)}}` — les champs vides ne sont plus envoyés à l'API (évite les rejets liés aux valeurs nulles)
-- `sendCampaignSms`: type de `sendAt` corrigé de `date` (ISO 8601) à `text` pour correspondre au format attendu par l'API (`YYYY-MM-DD HH:mm:ss`)
-- `campaignStatus`: suppression de la propriété `statut_labels` qui n'est pas un champ valide du schéma Make
+- `sendCampaignSms`: champs optionnels utilisent désormais `{{if(param; param; omit)}}` — les champs vides ne sont plus envoyés à l'API
+- `sendCampaignSms`: type de `sendAt` corrigé de `date` (ISO 8601) à `text`
+- `campaignStatus`: suppression de la propriété `statut_labels` invalide
 
 ## 1.0.3
 

@@ -1,0 +1,13 @@
+{
+  "url": "{{parameters.url}}",
+  "method": "{{parameters.method}}",
+  "headers": "{{parameters.headers}}",
+  "qs": "{{parameters.qs}}",
+  "body": "{{parameters.body}}",
+  "response": {
+    "output": "{{body}}",
+    "error": {
+      "message": "[{{statusCode}}] {{ifempty(body.message; 'API call failed.')}}"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+[
+  { "name": "statusCode", "label": "Status Code", "type": "number" },
+  { "name": "data",       "label": "Data",        "type": "any"    }
+]

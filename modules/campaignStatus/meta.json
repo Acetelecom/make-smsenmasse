@@ -1,5 +1,6 @@
 {
   "typeId": 10,
   "label": "SMS Campaign Status Updated",
-  "description": "Triggers when a campaign SMS receives a delivery status update (DLR). Copy the webhook URL provided by Make and paste it in the \"Webhook URL (DLR)\" field of the \"Send SMS Campaign\" module."
+  "description": "Triggers when a campaign SMS receives a delivery status update (DLR). Copy the webhook URL provided by Make and paste it in the \"Webhook URL (DLR)\" field of the \"Send SMS Campaign\" module.",
+  "public": true
 }

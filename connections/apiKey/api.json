@@ -1,10 +1,20 @@
 {
   "url": "/sms/balance",
   "method": "GET",
+  "headers": {
+    "X-API-KEY": "{{connection.apiKey}}"
+  },
+  "log": {
+    "sanitize": ["request.headers.X-API-KEY"]
+  },
   "response": {
     "valid": "{{statusCode === 200}}",
+    "metadata": {
+      "type": "text",
+      "value": "{{connection.accountLabel}}"
+    },
     "error": {
-      "message": "Invalid API key or connection failed."
+      "message": "[{{statusCode}}] {{ifempty(body.message; 'Invalid API key or connection failed.')}}"
     }
   }
 }
