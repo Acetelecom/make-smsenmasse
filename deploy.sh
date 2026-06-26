@@ -200,8 +200,8 @@ log "Updating app theme color..."
 $CLI sdk-apps update \
   --name="$APP_NAME" \
   --version="$APP_VERSION" \
-  --theme="#FFFFFF" 2>&1 || log "theme update skipped"
-ok "theme: #FFFFFF"
+  --theme="#041a2b" 2>&1 || log "theme update skipped"
+ok "theme: #041a2b"
 
 log "Pushing base section..."
 $CLI sdk-apps set-section \

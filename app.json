@@ -3,7 +3,7 @@
   "label": "SMS en Masse",
   "version": "1.0.4",
   "description": "Send SMS campaigns and manage your SMS en Masse account directly from Make.",
-  "color": "#FFFFFF",
+  "color": "#041a2b",
   "language": "en",
   "countries": ["FR", "BE", "CH", "LU"],
   "categories": ["marketing", "communication"],
