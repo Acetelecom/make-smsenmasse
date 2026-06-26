@@ -196,6 +196,13 @@ fi
 
 # ── PUSH: set all sections ────────────────────────────────────────────────────
 
+log "Updating app theme color..."
+$CLI sdk-apps update \
+  --name="$APP_NAME" \
+  --version="$APP_VERSION" \
+  --theme="#FFFFFF" 2>&1 || log "theme update skipped"
+ok "theme: #FFFFFF"
+
 log "Pushing base section..."
 $CLI sdk-apps set-section \
   --name="$APP_NAME" \
