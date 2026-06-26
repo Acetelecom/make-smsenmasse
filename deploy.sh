@@ -5,12 +5,6 @@
 # Usage:
 #   ./deploy.sh           → update all sections of an existing app
 #   ./deploy.sh --init    → create the app, connection, webhook & modules first
-#
-# Prerequisites:
-#   1. Copy .env.example to .env and fill in MAKE_API_KEY and MAKE_ZONE
-#   2. npm install (installs @makehq/cli)
-#   3. Run ./deploy.sh --init once to bootstrap the app on Make
-#   4. Run ./deploy.sh for every subsequent update
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
@@ -27,76 +21,157 @@ APP_VERSION="${MAKE_APP_VERSION:-1}"
 INIT_MODE=false
 [[ "${1:-}" == "--init" ]] && INIT_MODE=true
 
-CLI="npx --yes @makehq/cli --api-key=$MAKE_API_KEY --zone=$MAKE_ZONE"
+CLI="npx --yes @makehq/cli --api-key=$MAKE_API_KEY --zone=$MAKE_ZONE --output=json"
 
 log() { echo "→ $*"; }
 ok()  { echo "✓ $*"; }
 
+# Parse a field from JSON output (requires node, always available in CI)
+jq_get() { echo "$1" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{const o=JSON.parse(d);process.stdout.write(String(o.$2??''))}catch(e){process.stdout.write('')}})"; }
+
 # ── INIT: create app, connection, webhook, modules ────────────────────────────
 if $INIT_MODE; then
+
+  # ── App ───────────────────────────────────────────────────────────────────
   log "Creating app '$APP_NAME'..."
-  $CLI sdk-apps create \
+  APP_RESULT=$($CLI sdk-apps create \
     --name="$APP_NAME" \
     --label="SMS en Masse" \
     --description="Send SMS campaigns and manage your SMS en Masse account directly from Make." \
     --theme="#0055FF" \
     --language="en" \
-    --audience="global" 2>/dev/null || log "App may already exist — skipping creation."
-  ok "App ready."
+    --audience="global" 2>&1) || {
+    log "Create failed — checking if app already exists..."
+    APP_RESULT=$($CLI sdk-apps get --name="$APP_NAME" --version="$APP_VERSION" 2>&1) || {
+      echo "ERROR: Could not create or find app '$APP_NAME'. Raw output:"
+      echo "$APP_RESULT"
+      exit 1
+    }
+  }
+  # Extract actual name/version returned by Make
+  ACTUAL_NAME=$(echo "$APP_RESULT" | node -e "
+    process.stdin.resume(); let d='';
+    process.stdin.on('data',c=>d+=c);
+    process.stdin.on('end',()=>{
+      try { const o=JSON.parse(d); process.stdout.write(o.name||o.appId||''); }
+      catch(e){ process.stdout.write(''); }
+    })" <<< "$APP_RESULT")
+  ACTUAL_VERSION=$(echo "$APP_RESULT" | node -e "
+    process.stdin.resume(); let d='';
+    process.stdin.on('data',c=>d+=c);
+    process.stdin.on('end',()=>{
+      try { const o=JSON.parse(d); process.stdout.write(String(o.version??'')); }
+      catch(e){ process.stdout.write(''); }
+    })" <<< "$APP_RESULT")
 
-  log "Creating connection 'apiKey'..."
-  $CLI sdk-connections create \
+  if [ -n "$ACTUAL_NAME" ]; then
+    APP_NAME="$ACTUAL_NAME"
+    log "App name confirmed by API: $APP_NAME"
+  fi
+  if [ -n "$ACTUAL_VERSION" ]; then
+    APP_VERSION="$ACTUAL_VERSION"
+    log "App version confirmed by API: $APP_VERSION"
+  fi
+  ok "App: $APP_NAME v$APP_VERSION"
+
+  # ── Connection ────────────────────────────────────────────────────────────
+  log "Creating connection..."
+  CONN_RESULT=$($CLI sdk-connections create \
     --app-name="$APP_NAME" \
     --type="basic" \
-    --label="API Key" 2>/dev/null || log "Connection may already exist — skipping."
-  ok "Connection ready."
+    --label="API Key" 2>&1) || {
+    log "Connection create failed or already exists — listing to find name..."
+    CONN_RESULT=$($CLI sdk-connections list --app-name="$APP_NAME" 2>&1)
+  }
+  CONN_NAME=$(echo "$CONN_RESULT" | node -e "
+    process.stdin.resume(); let d='';
+    process.stdin.on('data',c=>d+=c);
+    process.stdin.on('end',()=>{
+      try {
+        const o=JSON.parse(d);
+        const arr=Array.isArray(o)?o:[o];
+        process.stdout.write(arr[0]?.name||arr[0]?.connectionId||'');
+      } catch(e){ process.stdout.write(''); }
+    })" <<< "$CONN_RESULT")
+  if [ -z "$CONN_NAME" ]; then
+    echo "ERROR: Could not determine connection name. Raw output:"
+    echo "$CONN_RESULT"
+    exit 1
+  fi
+  ok "Connection: $CONN_NAME"
 
-  log "Creating webhook 'dlrReceiver'..."
-  $CLI sdk-webhooks create \
+  # ── Webhook ───────────────────────────────────────────────────────────────
+  log "Creating webhook..."
+  HOOK_RESULT=$($CLI sdk-webhooks create \
     --app-name="$APP_NAME" \
     --type="web" \
-    --label="DLR Receiver" 2>/dev/null || log "Webhook may already exist — skipping."
-  ok "Webhook ready."
+    --label="DLR Receiver" 2>&1) || {
+    log "Webhook create failed or already exists — listing to find name..."
+    HOOK_RESULT=$($CLI sdk-webhooks list --app-name="$APP_NAME" 2>&1)
+  }
+  HOOK_NAME=$(echo "$HOOK_RESULT" | node -e "
+    process.stdin.resume(); let d='';
+    process.stdin.on('data',c=>d+=c);
+    process.stdin.on('end',()=>{
+      try {
+        const o=JSON.parse(d);
+        const arr=Array.isArray(o)?o:[o];
+        process.stdout.write(arr[0]?.name||arr[0]?.webhookId||'');
+      } catch(e){ process.stdout.write(''); }
+    })" <<< "$HOOK_RESULT")
+  ok "Webhook: ${HOOK_NAME:-created}"
 
+  # ── Modules ───────────────────────────────────────────────────────────────
   log "Creating modules..."
 
-  $CLI sdk-modules create \
-    --app-name="$APP_NAME" \
-    --app-version="$APP_VERSION" \
-    --name="sendCampaignSms" \
-    --type-id=4 \
-    --label="Send SMS Campaign" \
-    --description="Creates and sends an SMS campaign to one or more recipients via SMS en Masse." \
-    2>/dev/null || log "Module sendCampaignSms may already exist — skipping."
+  create_module() {
+    local name=$1 typeid=$2 label=$3 desc=$4
+    $CLI sdk-modules create \
+      --app-name="$APP_NAME" \
+      --app-version="$APP_VERSION" \
+      --name="$name" \
+      --type-id="$typeid" \
+      --label="$label" \
+      --description="$desc" 2>&1 || log "Module $name: create failed or already exists — continuing."
+    ok "Module: $name"
+  }
 
-  $CLI sdk-modules create \
-    --app-name="$APP_NAME" \
-    --app-version="$APP_VERSION" \
-    --name="getBalance" \
-    --type-id=4 \
-    --label="Get Balance" \
-    --description="Retrieves the number of SMS credits available on your SMS en Masse account." \
-    2>/dev/null || log "Module getBalance may already exist — skipping."
+  create_module "sendCampaignSms" 4 "Send SMS Campaign" \
+    "Creates and sends an SMS campaign to one or more recipients via SMS en Masse."
 
-  $CLI sdk-modules create \
-    --app-name="$APP_NAME" \
-    --app-version="$APP_VERSION" \
-    --name="listCampaigns" \
-    --type-id=9 \
-    --label="List Campaigns" \
-    --description="Lists SMS campaigns on your SMS en Masse account with optional pagination." \
-    2>/dev/null || log "Module listCampaigns may already exist — skipping."
+  create_module "getBalance" 4 "Get Balance" \
+    "Retrieves the number of SMS credits available on your SMS en Masse account."
 
-  $CLI sdk-modules create \
-    --app-name="$APP_NAME" \
-    --app-version="$APP_VERSION" \
-    --name="campaignStatus" \
-    --type-id=10 \
-    --label="SMS Campaign Status Updated" \
-    --description="Triggers when a campaign SMS receives a delivery status update (DLR)." \
-    2>/dev/null || log "Module campaignStatus may already exist — skipping."
+  create_module "listCampaigns" 9 "List Campaigns" \
+    "Lists SMS campaigns on your SMS en Masse account with optional pagination."
 
-  ok "All modules created."
+  create_module "campaignStatus" 10 "SMS Campaign Status Updated" \
+    "Triggers when a campaign SMS receives a delivery status update (DLR)."
+
+  ok "All resources initialised — APP_NAME=$APP_NAME  APP_VERSION=$APP_VERSION  CONN_NAME=$CONN_NAME"
+
+  # Save resolved names for the push phase below
+  export APP_NAME APP_VERSION CONN_NAME
+fi
+
+# ── If not init, resolve connection name by listing ──────────────────────────
+if ! $INIT_MODE; then
+  CONN_RESULT=$($CLI sdk-connections list --app-name="$APP_NAME" 2>&1)
+  CONN_NAME=$(echo "$CONN_RESULT" | node -e "
+    process.stdin.resume(); let d='';
+    process.stdin.on('data',c=>d+=c);
+    process.stdin.on('end',()=>{
+      try {
+        const o=JSON.parse(d);
+        const arr=Array.isArray(o)?o:[o];
+        process.stdout.write(arr[0]?.name||arr[0]?.connectionId||'');
+      } catch(e){ process.stdout.write(''); }
+    })" <<< "$CONN_RESULT")
+  if [ -z "$CONN_NAME" ]; then
+    echo "ERROR: No connection found for app '$APP_NAME'. Run with --init first."
+    exit 1
+  fi
+  log "Connection resolved: $CONN_NAME"
 fi
 
 # ── PUSH: set all sections ────────────────────────────────────────────────────
@@ -111,16 +186,16 @@ ok "base"
 
 log "Pushing connection sections..."
 $CLI sdk-connections set-section \
-  --connection-name="apiKey" \
+  --connection-name="$CONN_NAME" \
   --section=parameters \
   --body="$(cat connections/apiKey/parameters.json)"
-ok "connection/apiKey/parameters"
+ok "connection/parameters"
 
 $CLI sdk-connections set-section \
-  --connection-name="apiKey" \
+  --connection-name="$CONN_NAME" \
   --section=api \
   --body="$(cat connections/apiKey/api.json)"
-ok "connection/apiKey/api"
+ok "connection/api"
 
 log "Pushing module: sendCampaignSms..."
 $CLI sdk-modules set-section \
@@ -171,10 +246,7 @@ $CLI sdk-modules set-section \
 ok "campaignStatus"
 
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  ✅  Deployment complete — app: $APP_NAME v$APP_VERSION"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-echo "  Next step: open https://www.make.com/en/hq/app-invitation/smsenmasse"
-echo "  and click 'Publish' to enable the app review process."
-echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  ✅  Deployment complete"
+echo "      app: $APP_NAME  version: $APP_VERSION  conn: $CONN_NAME"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
