@@ -154,8 +154,28 @@ if $INIT_MODE; then
   export APP_NAME APP_VERSION CONN_NAME
 fi
 
-# ── If not init, resolve connection name by listing ──────────────────────────
+# ── If not init, resolve real app name + connection name from Make ────────────
 if ! $INIT_MODE; then
+  # Find the app by label "SMS en Masse" (resilient if Make appended a suffix to the name)
+  ALL_APPS=$($CLI sdk-apps list 2>&1)
+  RESOLVED=$(echo "$ALL_APPS" | node -e "
+    process.stdin.resume(); let d='';
+    process.stdin.on('data',c=>d+=c);
+    process.stdin.on('end',()=>{
+      try {
+        const arr=JSON.parse(d);
+        const app=arr.find(a=>a.label==='SMS en Masse');
+        process.stdout.write(JSON.stringify(app||null));
+      } catch(e){ process.stdout.write('null'); }
+    })" <<< "$ALL_APPS")
+  if [ "$RESOLVED" = "null" ] || [ -z "$RESOLVED" ]; then
+    echo "ERROR: App 'SMS en Masse' not found on Make. Run with --init first."
+    exit 1
+  fi
+  APP_NAME=$(echo "$RESOLVED" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const o=JSON.parse(d);process.stdout.write(o.name||'')})" <<< "$RESOLVED")
+  APP_VERSION=$(echo "$RESOLVED" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const o=JSON.parse(d);process.stdout.write(String(o.version??1))})" <<< "$RESOLVED")
+  log "App resolved by label: $APP_NAME v$APP_VERSION"
+
   CONN_RESULT=$($CLI sdk-connections list --app-name="$APP_NAME" 2>&1)
   CONN_NAME=$(echo "$CONN_RESULT" | node -e "
     process.stdin.resume(); let d='';
@@ -168,7 +188,7 @@ if ! $INIT_MODE; then
       } catch(e){ process.stdout.write(''); }
     })" <<< "$CONN_RESULT")
   if [ -z "$CONN_NAME" ]; then
-    echo "ERROR: No connection found for app '$APP_NAME'. Run with --init first."
+    echo "ERROR: No connection found for app '$APP_NAME'."
     exit 1
   fi
   log "Connection resolved: $CONN_NAME"
