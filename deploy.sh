@@ -265,6 +265,14 @@ $CLI sdk-modules set-section \
   --body="$(cat modules/campaignStatus/interface.json)"
 ok "campaignStatus"
 
+log "Uploading app icon (512×512)..."
+ICON_B64=$(base64 < logo-512.png | tr -d '\n')
+$CLI sdk-apps set-icon \
+  --name="$APP_NAME" \
+  --version="$APP_VERSION" \
+  --data-base64="$ICON_B64"
+ok "icon uploaded"
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  ✅  Deployment complete"

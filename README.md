@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="SMS en Masse" width="120" />
+</p>
+
 # make-smsenmasse
 
 Official [SMS en Masse](https://www.smsenmasse.fr) integration for [Make](https://www.make.com) (formerly Integromat).
